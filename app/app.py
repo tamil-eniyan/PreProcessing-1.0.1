@@ -6,14 +6,13 @@ from sklearn import preprocessing
 from tkinter.ttk import *
 from tkinter import *
 
-lable_encoder = preprocessing.LabelEncoder()
+label_encoder = preprocessing.LabelEncoder()
 
 
 
 df = pd.DataFrame()
 column_names = []
-
-
+list_flag = False
 
 app = CTk()
 
@@ -56,11 +55,10 @@ lable_file.place(relx=0.10,rely=0.10)
 #buttons for Pre-Procesing
 
 lable_encoder_button = tk.Button(preprocessing_frame,text="Lable Encoding",command=lambda:open_label_encoding_window()) #need to add functionality
-lable_encoder_button.place(relx=0.10,rely=0.40)
-
-
-
-
+lable_encoder_button.pack(side="bottom",fill="both")
+    #dropdown
+clicked = StringVar() 
+clicked.set( "Select an option" )
 
 
 
@@ -83,11 +81,23 @@ def open_label_encoding_window():
     global df
     global column_names
 
-        
+    column_name = clicked.get()
     df[column_name]= label_encoder.fit_transform(df[column_name]) 
   
-    df[column_name].unique() 
+    df[column_name].unique()
 
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    
 
 
 def File_dialog():
@@ -123,6 +133,11 @@ def Load_csv_data():
 
     for row in df_rows:
         tv1.insert("","end",values = row)
+
+    drop = OptionMenu( preprocessing_frame , clicked , *column_names) 
+    drop.pack(side="top",fill="both") 
+
+
     
     return None
 
