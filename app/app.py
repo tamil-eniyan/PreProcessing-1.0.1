@@ -2,16 +2,16 @@ from customtkinter import *
 import tkinter as tk
 from tkinter import filedialog,messagebox,ttk
 import pandas as pd
-from sklearn import preprocessing 
+from sklearn import preprocessing
 from tkinter.ttk import *
 from tkinter import *
 
 label_encoder = preprocessing.LabelEncoder()
-
+level_encoder = preprocessing.OneHotEncoder() 
 
 
 df = pd.DataFrame()
-column_names = []
+column_names = ["None"]
 list_flag = False
 
 app = CTk()
@@ -21,14 +21,26 @@ set_appearance_mode('light')
 app.title('ML')
 app.pack_propagate(False)
 app.resizable(0,0)
+#option menu choosing
 
-
+clicked = StringVar() 
+clicked.set( "Select an option" )
 
 frame1 = tk.LabelFrame(app,text="DataFrame",height=300,width=400 )
 command_frame = tk.LabelFrame(app,text="Commands")
 preprocessing_frame = tk.LabelFrame(app,text="Pre Processing",height=400,width=200)
 file_frame = tk.LabelFrame(app,text="File Management",height=100,width=400)
 
+
+def refresh():
+    # Reset clicked and delete all old options
+    clicked.set('')
+    drop['menu'].delete(0, 'end')
+
+    # Insert list of new options (tk._setit hooks them up to var)
+    new_choices = column_names
+    for choice in new_choices:
+        drop['menu'].add_command(label=choice, command=tk._setit(clicked, choice))
 
 
 def do_layout():
@@ -54,11 +66,20 @@ lable_file.place(relx=0.10,rely=0.10)
 
 #buttons for Pre-Procesing
 
-lable_encoder_button = tk.Button(preprocessing_frame,text="Lable Encoding",command=lambda:open_label_encoding_window()) #need to add functionality
+lable_encoder_button = tk.Button(preprocessing_frame,text="Lable Encoding",command=lambda:open_label_encoding_window())
 lable_encoder_button.pack(side="bottom",fill="both")
+
+#level_encoding_button
+
+level_encoder_button = tk.Button(preprocessing_frame,text="Level Encoding",command=lambda:open_level_encoding_window())
+level_encoder_button.pack(side="bottom",fill="both")
+
+
     #dropdown
-clicked = StringVar() 
-clicked.set( "Select an option" )
+
+drop = OptionMenu( preprocessing_frame , clicked , *column_names) 
+drop.pack(side="top",fill="both") 
+    
 
 
 
@@ -74,6 +95,38 @@ tv1.configure(xscrollcommand=treescrollx.set,yscrollcommand=treescrolly.set)
 treescrollx.pack(side="bottom",fill="x")
 treescrolly.pack(side="right",fill="y")
 
+
+def open_level_encoding_window():
+    global df
+    global column_names
+
+    column_name = clicked.get()
+
+    df[column_name] = df[column_name].astype('category')
+  
+    df[f'{column_name}_new'] = df[column_name].cat.codes
+    
+    level_encoder_data = pd.DataFrame(level_encoder.fit_transform( df[[f"{column_name}_new"]]).toarray()) 
+  
+    # Merge with main 
+    df = df.join(level_encoder_data) 
+
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    column_names = list(df.columns)
+    
+    refresh()
+
+    return None
 
 
 
@@ -97,8 +150,10 @@ def open_label_encoding_window():
     for row in df_rows:
         tv1.insert("","end",values = row)
 
-    
+    refresh()
 
+
+    return None
 
 def File_dialog():
     filename = filedialog.askopenfilename(initialdir="/home/tamil/Documents/",
@@ -134,12 +189,11 @@ def Load_csv_data():
     for row in df_rows:
         tv1.insert("","end",values = row)
 
-    drop = OptionMenu( preprocessing_frame , clicked , *column_names) 
-    drop.pack(side="top",fill="both") 
-
+    refresh()
 
     
     return None
+
 
 
 
