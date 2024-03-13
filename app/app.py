@@ -80,6 +80,14 @@ level_encoder_button.pack(side="bottom",fill="both")
 drop = OptionMenu( preprocessing_frame , clicked , *column_names) 
 drop.pack(side="top",fill="both") 
     
+#delete a column
+
+
+del_column_button = tk.Button(preprocessing_frame,text="Delete The Column",command=lambda:open_delete_column_window())
+del_column_button.pack(side="bottom",fill="both")
+
+
+
 
 
 
@@ -94,6 +102,35 @@ treescrollx = tk.Scrollbar(frame1,orient="horizontal",command=tv1.xview)
 tv1.configure(xscrollcommand=treescrollx.set,yscrollcommand=treescrolly.set)
 treescrollx.pack(side="bottom",fill="x")
 treescrolly.pack(side="right",fill="y")
+
+
+
+def open_delete_column_window():
+    global df
+    global column_names
+    column_name = clicked.get()
+    
+    df = df.drop(column_name,axis = 1)
+
+    
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    column_names = list(df.columns)
+    
+    refresh()
+
+    return None
+
+
 
 
 def open_level_encoding_window():
@@ -171,7 +208,11 @@ def Load_csv_data():
     try:
         csv_filename = r"{}".format(file_path)
         df = pd.read_csv(csv_filename)
+        df = df.reset_index()
+        df = df.reset_index().rename(columns={"index":"Index"})
+        del df["level_0"]
         column_names = list(df.columns)
+        print(df)
     except ValueError:
         tk.messagebox.showerror("Information","The file you have choosen is Invalid")
         return None
