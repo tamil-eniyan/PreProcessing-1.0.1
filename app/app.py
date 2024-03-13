@@ -34,6 +34,13 @@ file_frame = tk.LabelFrame(app,text="File Management",height=100,width=400)
 
 def refresh():
     # Reset clicked and delete all old options
+    global column_names
+    global df
+    try:
+        print(df)
+    except:
+        pass
+
     clicked.set('')
     drop['menu'].delete(0, 'end')
 
@@ -108,9 +115,15 @@ treescrolly.pack(side="right",fill="y")
 def open_delete_column_window():
     global df
     global column_names
-    column_name = clicked.get()
-    
-    df = df.drop(column_name,axis = 1)
+    column_name = str(clicked.get())
+    try:
+        print(column_names)
+        print(column_name)
+        print(type(column_name))
+        index  = column_names.index(column_name)
+        df = df.drop(df.columns[index], axis=1)
+    except Exception as e:
+        tk.messagebox.showerror("Information",f"Error {e} occured while droping try UNDO button ")
 
     
     clear_data()
@@ -127,6 +140,7 @@ def open_delete_column_window():
     column_names = list(df.columns)
     
     refresh()
+    
 
     return None
 
@@ -159,8 +173,8 @@ def open_level_encoding_window():
     for row in df_rows:
         tv1.insert("","end",values = row)
 
-    column_names = list(df.columns)
-    
+    list_string = list(df.columns)
+    column_names = [str(x) for x in list_string]
     refresh()
 
     return None
@@ -211,8 +225,9 @@ def Load_csv_data():
         df = df.reset_index()
         df = df.reset_index().rename(columns={"index":"Index"})
         del df["level_0"]
-        column_names = list(df.columns)
-        print(df)
+        list_string = list(df.columns)
+        column_names = [str(x) for x in list_string]
+        #print(df)
     except ValueError:
         tk.messagebox.showerror("Information","The file you have choosen is Invalid")
         return None
