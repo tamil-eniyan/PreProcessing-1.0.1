@@ -125,7 +125,10 @@ def open_delete_column_window():
         print(column_name)
         print(type(column_name))
         index  = column_names.index(column_name)
-        df = df.drop(df.columns[index], axis=1)
+        try:
+            df = df.drop(df.columns[index], axis=1)
+        except:
+            pass
     except Exception as e:
         tk.messagebox.showerror("Information",f"Error {e} occured while droping try UNDO button ")
 
