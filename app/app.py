@@ -68,6 +68,10 @@ loadfile_button = tk.Button(file_frame,text="   Load File   ",command=lambda:Loa
 loadfile_button.place(relx=0.10,rely=0.60)
 
 
+savefile_button = tk.Button(file_frame,text="   Save File   ",command=lambda:save())
+savefile_button.place(relx=0.10,rely=0.70)
+
+
 lable_file=ttk.Label(file_frame,text="[-]No File Selected")
 lable_file.place(relx=0.10,rely=0.10)
 
@@ -214,7 +218,23 @@ def File_dialog():
     return None
 
 
+def save(): 
+    global df
+    try:
+        file = filedialog.asksaveasfilename(
+                filetypes=[("csv file", ".csv")],
+                defaultextension=".csv")
+        
+        if file:
+            df = df.drop(df.columns[0], axis=1)
+            df.to_csv(file,index=False)
+            tk.messagebox.showinfo("Save File",f"The File is Saved at : {file}")
+            lable_file["text"] = f"{file}"
+    except Exception as e:
+        tk.messagebox.showerror("Information",f"{e}")
+    return None
 
+    
 
 def Load_csv_data():
     file_path = lable_file["text"]
