@@ -104,6 +104,16 @@ del_column_button.pack(side="bottom",fill="both")
 none_del_button = tk.Button(preprocessing_frame,text="Delete None Values",command=lambda:open_delete_none_window())
 none_del_button.pack(side="bottom",fill="both")
 
+    #fill nan with null values
+none_fillmean_button = tk.Button(preprocessing_frame,text="Fill None with Mean",command=lambda:open_fillmean_none_window())
+none_fillmean_button.pack(side="bottom",fill="both")
+
+    #fill 0 with null values
+
+none_fill_0_button = tk.Button(preprocessing_frame,text="Fill None with 0",command=lambda:open_fill0_none_window())
+none_fill_0_button.pack(side="bottom",fill="both")
+
+
 
 
 #displaying the dataframe:
@@ -119,6 +129,87 @@ treescrollx.pack(side="bottom",fill="x")
 treescrolly.pack(side="right",fill="y")
 
 
+
+
+def open_fill0_none_window():
+    global df
+    global column_names
+    column_name = str(clicked.get())
+    try:
+        print(column_names)
+        print(column_name)
+        print(type(column_name))
+        index  = column_names.index(column_name)
+        try:
+            df[column_names[index]]  = df[column_names[index]].fillna(value=0)
+        except Exception as e:
+            print(f"[-]Error : {e}")
+    except Exception as e:
+        tk.messagebox.showerror("Information",f"Error {e} occured while droping try UNDO button ")
+
+    
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    column_names = list(df.columns)
+    
+    refresh()
+    
+
+    return None
+
+
+
+
+
+
+
+
+def open_fillmean_none_window():
+    global df
+    global column_names
+    column_name = str(clicked.get())
+    try:
+        print(column_names)
+        print(column_name)
+        print(type(column_name))
+        index  = column_names.index(column_name)
+        try:
+            #df[column_names[index]]  = df[column_names[index]].fillna(value=0)
+            #df[column_names[index]] = df[column_names[index]].astype(int)
+            mean_value = df[str(column_names[index])].mean()
+            df[column_names[index]] = df[str(column_names[index])].fillna(value=mean_value)
+        except Exception as e:
+            print(f"[-]Error : {e}")
+    except Exception as e:
+        tk.messagebox.showerror("Information",f"Error {e} occured while droping try UNDO button ")
+
+    
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    column_names = list(df.columns)
+    
+    refresh()
+    
+
+    return None
 
 
 
