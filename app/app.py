@@ -97,8 +97,12 @@ drop.pack(side="top",fill="both")
 del_column_button = tk.Button(preprocessing_frame,text="Delete The Column",command=lambda:open_delete_column_window())
 del_column_button.pack(side="bottom",fill="both")
 
+#Null value preprocessing
 
+    #drop rows with null values
 
+none_del_button = tk.Button(preprocessing_frame,text="Delete None Values",command=lambda:open_delete_none_window())
+none_del_button.pack(side="bottom",fill="both")
 
 
 
@@ -113,6 +117,48 @@ treescrollx = tk.Scrollbar(frame1,orient="horizontal",command=tv1.xview)
 tv1.configure(xscrollcommand=treescrollx.set,yscrollcommand=treescrolly.set)
 treescrollx.pack(side="bottom",fill="x")
 treescrolly.pack(side="right",fill="y")
+
+
+
+
+
+
+def open_delete_none_window():
+    global df
+    global column_names
+    column_name = str(clicked.get())
+    try:
+        print(column_names)
+        print(column_name)
+        print(type(column_name))
+        index  = column_names.index(column_name)
+        try:
+            df = df.dropna(subset=[str(column_names[index])])
+        except:
+            pass
+    except Exception as e:
+        tk.messagebox.showerror("Information",f"Error {e} occured while droping try UNDO button ")
+
+    
+    clear_data()
+    tv1['column'] = list(df.columns)
+    tv1["show"] = "headings"
+    for column in tv1["column"]:
+        tv1.heading(column,text=column)
+
+    df_rows = df.to_numpy().tolist()
+
+    for row in df_rows:
+        tv1.insert("","end",values = row)
+
+    column_names = list(df.columns)
+    
+    refresh()
+    
+
+    return None
+
+
 
 
 
